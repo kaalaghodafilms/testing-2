@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Greeting</title>
+    <style>
+        /* Smooth, animated gradient background */
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(45deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+            background-size: 400% 400%;
+            animation: gradientBG 10s ease infinite;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            transition: background 0.5s ease;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Glassmorphism card effect */
+        .card {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 50px;
+            text-align: center;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* 3D float effect on hover */
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px 0 rgba(31, 38, 135, 0.3);
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 2.5em;
+        }
+
+        /* Interactive button styling */
+        button {
+            background: #ff758c;
+            color: white;
+            border: none;
+            padding: 15px 35px;
+            border-radius: 30px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 117, 140, 0.4);
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #ff7eb3;
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(255, 117, 140, 0.6);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        /* Hidden message that reveals on click */
+        .message {
+            margin-top: 25px;
+            font-size: 1.3em;
+            color: #34495e;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.5s ease;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card" id="interactiveCard">
+        <h1>Hello, how r u?</h1>
+        <button onclick="triggerInteraction()">Interact!</button>
+        <p class="message" id="hiddenMessage">I'm doing great! Thanks for asking. ✨</p>
+        <h2 style="margin-top: 20px; color: #34495e;">Click the button to see a surprise!</h2>
+    </div>
+
+    <script>
+        function triggerInteraction() {
+            // 1. Reveal the hidden message with a slide-up effect
+            const msg = document.getElementById('hiddenMessage');
+            msg.style.opacity = '1';
+            msg.style.transform = 'translateY(0)';
+
+            // 2. Change the background to a random new gradient
+            const gradients = [
+                'linear-gradient(45deg, #a18cd1 0%, #fbc2eb 100%)',
+                'linear-gradient(45deg, #84fab0 0%, #8fd3f4 100%)',
+                'linear-gradient(45deg, #fccb90 0%, #d57eeb 100%)',
+                'linear-gradient(45deg, #e0c3fc 0%, #8ec5fc 100%)',
+                'linear-gradient(45deg, #4facfe 0%, #00f2fe 100%)'
+            ];
+            
+            const randomGradient = gradients[Math.floor(Math.random() * gradients.length)];
+            document.body.style.background = randomGradient;
+            document.body.style.backgroundSize = '400% 400%';
+            
+            // 3. Add a quick "pop" animation to the card itself
+            const card = document.getElementById('interactiveCard');
+            card.style.transform = 'scale(1.08)';
+            setTimeout(() => {
+                // Return to the hover state position
+                card.style.transform = 'scale(1) translateY(-10px)';
+            }, 150);
+        }
+    </script>
+
+</body>
+</html>
