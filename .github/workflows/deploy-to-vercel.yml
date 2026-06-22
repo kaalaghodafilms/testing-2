@@ -1,0 +1,54 @@
+name: Mirror to Private Repo
+
+on:
+  push:
+    branches:
+      - main  # or whatever branch triggers Vercel
+
+concurrency:
+  group: mirror-to-private
+  cancel-in-progress: false
+
+jobs:
+  sync-code:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.PRIVATE_REPO_PAT }}
+
+      - name: Rewrite commits as kaala-ghoda and Push
+        env:
+          TARGET_PAT: ${{ secrets.PRIVATE_REPO_PAT }}
+          REPO_NAME: ${{ github.event.repository.name }}
+          TARGET_ACCOUNT: "kaala-ghoda"
+          # Get kaala-ghoda's exact email from GitHub account settings
+          GIT_AUTHOR_NAME: "kaala-ghoda"
+          GIT_AUTHOR_EMAIL: ${{ secrets.KAALA_GHODA_EMAIL }}
+          GIT_COMMITTER_NAME: "kaala-ghoda"
+          GIT_COMMITTER_EMAIL: ${{ secrets.KAALA_GHODA_EMAIL }}
+        run: |
+          # STEP 1: Wipe credential helpers
+          git config --global --unset-all credential.helper || true
+          git config --local --unset-all credential.helper || true
+          git config --global credential.helper ""
+
+          # STEP 2: Authenticate GitHub CLI
+          echo "$TARGET_PAT" | gh auth login --with-token
+
+          # STEP 3: Create private repo if missing
+          gh repo create "$TARGET_ACCOUNT/$REPO_NAME" --private 2>/dev/null || true
+
+          # STEP 4: Set git identity to kaala-ghoda
+          git config --global user.name "$GIT_AUTHOR_NAME"
+          git config --global user.email "$GIT_AUTHOR_EMAIL"
+
+          # STEP 5: Rewrite the last commit's author to kaala-ghoda
+          # This makes Vercel see kaala-ghoda as the deploying user
+          git commit --amend --reset-author --no-edit 2>/dev/null || true
+
+          # STEP 6: Push to private repo
+          git remote add target https://x-access-token:$TARGET_PAT@github.com/$TARGET_ACCOUNT/$REPO_NAME.git
+          git push target HEAD:main --force
